@@ -41,6 +41,8 @@
         ]
     },
     "devDependencies": {
-        "prettier": "^2.7.1"
+        "@types/googlemaps": "^3.43.3",
+        "prettier": "^2.7.1",
+        "sass": "^1.52.3"
     }
 }
