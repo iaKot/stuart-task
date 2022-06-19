@@ -8,6 +8,8 @@ import { PickUpBadgePresent } from './components/icons/pickup-badge-present';
 import { DropOffBadgeBlank } from './components/icons/dropoff-badge-blank';
 import { DropOffBadgeError } from './components/icons/dropoff-badge-error';
 import { DropOffBadgePresent } from './components/icons/dropoff-badge-present';
+import pickUpMarker from './svg/pickUpMarker.svg';
+import dropOffMarker from './svg/dropOffMarker.svg';
 import { useDebounce } from './hooks/use-debounce';
 import { useQueryAdderess } from './hooks/use-query-adderess';
 import { FormState, FormKeys } from './types';
@@ -58,14 +60,19 @@ export const App = () => {
         setMap(map);
     }, []);
 
+    // Setting marker
     useEffect(() => {
         let marker: google.maps.Marker;
 
         if (pickupStatus === 'success' && map) {
-            marker = window.initMarker(map, {
-                lat: pickupData.latitude,
-                lng: pickupData.longitude
-            });
+            marker = window.initMarker(
+                map,
+                {
+                    lat: pickupData.latitude,
+                    lng: pickupData.longitude
+                },
+                { url: pickUpMarker }
+            );
         }
 
         setFormState(prev => ({
@@ -74,7 +81,7 @@ export const App = () => {
                 ...prev.pickup,
                 ...(pickupStatus === 'error' && { status: 'error' }),
                 ...(pickupStatus === 'success' && { status: 'valid' }),
-                ...(marker && marker)
+                ...(marker && { marker })
             }
         }));
     }, [pickupStatus, pickupData, map]);
@@ -83,10 +90,14 @@ export const App = () => {
         let marker: google.maps.Marker;
 
         if (dropoffStatus === 'success' && map) {
-            marker = window.initMarker(map, {
-                lat: dropoffData.latitude,
-                lng: dropoffData.longitude
-            });
+            marker = window.initMarker(
+                map,
+                {
+                    lat: dropoffData.latitude,
+                    lng: dropoffData.longitude
+                },
+                { url: dropOffMarker }
+            );
         }
 
         setFormState(prev => ({
@@ -95,10 +106,42 @@ export const App = () => {
                 ...prev.dropoff,
                 ...(dropoffStatus === 'error' && { status: 'error' }),
                 ...(dropoffStatus === 'success' && { status: 'valid' }),
-                ...(marker && marker)
+                ...(marker && { marker })
             }
         }));
     }, [dropoffStatus, dropoffData, map]);
+
+    // Deleting marker
+    useEffect(() => {
+        if (formState.pickup.status === 'updating' && formState.pickup.marker) {
+            formState.pickup.marker.setMap(null);
+
+            setFormState(prev => ({
+                ...prev,
+                pickup: {
+                    ...prev.pickup,
+                    marker: undefined
+                }
+            }));
+        }
+    }, [formState.pickup.status, formState.pickup.marker]);
+
+    useEffect(() => {
+        if (
+            formState.dropoff.status === 'updating' &&
+            formState.dropoff.marker
+        ) {
+            formState.dropoff.marker.setMap(null);
+
+            setFormState(prev => ({
+                ...prev,
+                dropoff: {
+                    ...prev.dropoff,
+                    marker: undefined
+                }
+            }));
+        }
+    }, [formState.dropoff.status, formState.dropoff.marker]);
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFormState(prev => ({

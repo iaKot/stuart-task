@@ -16,13 +16,15 @@ type Position = {
 
 export type InitMarkerFn = (
     map: google.maps.Map,
-    position: Position
+    position: Position,
+    icon?: google.maps.Icon
 ) => google.maps.Marker;
 
-export const initMarker: InitMarkerFn = (map, position) => {
+export const initMarker: InitMarkerFn = (map, position, icon) => {
     const marker = new google.maps.Marker({
         position,
-        map: map
+        map: map,
+        icon
     });
 
     return marker;
