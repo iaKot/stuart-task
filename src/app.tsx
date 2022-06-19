@@ -1,5 +1,6 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Input } from './components/input';
+import { Button } from './components/button';
 import { mapOptions } from './config';
 import { PickUpBadgeBlank } from './components/icons/pickup-badge-blank';
 import { PickUpBadgeError } from './components/icons/pickup-badge-error';
@@ -7,6 +8,8 @@ import { PickUpBadgePresent } from './components/icons/pickup-badge-present';
 import { DropOffBadgeBlank } from './components/icons/dropoff-badge-blank';
 import { DropOffBadgeError } from './components/icons/dropoff-badge-error';
 import { DropOffBadgePresent } from './components/icons/dropoff-badge-present';
+import { useDebounce } from './hooks/use-debounce';
+import { useQueryAdderess } from './hooks/use-query-adderess';
 import { FormState, FormKeys } from './types';
 import './styles.scss';
 
@@ -37,12 +40,65 @@ export const App = () => {
     };
     const [map, setMap] = useState<google.maps.Map>();
     const [formState, setFormState] = useState(formStateInit);
+    const debouncedPickup = useDebounce(formState.pickup.value);
+    const debouncedDropoff = useDebounce(formState.dropoff.value);
+
+    const { status: pickupStatus, data: pickupData } = useQueryAdderess(
+        debouncedPickup,
+        { enabled: !!debouncedPickup }
+    );
+    const { status: dropoffStatus, data: dropoffData } = useQueryAdderess(
+        debouncedDropoff,
+        { enabled: !!debouncedDropoff }
+    );
 
     useEffect(() => {
         const map = window.initMap(mapOptions);
 
         setMap(map);
     }, []);
+
+    useEffect(() => {
+        let marker: google.maps.Marker;
+
+        if (pickupStatus === 'success' && map) {
+            marker = window.initMarker(map, {
+                lat: pickupData?.latitude,
+                lng: pickupData?.longitude
+            });
+        }
+
+        setFormState(prev => ({
+            ...prev,
+            pickup: {
+                ...prev.pickup,
+                ...(pickupStatus === 'error' && { status: 'error' }),
+                ...(pickupStatus === 'success' && { status: 'valid' }),
+                ...(marker && marker)
+            }
+        }));
+    }, [pickupStatus, pickupData, map]);
+
+    useEffect(() => {
+        let marker: google.maps.Marker;
+
+        if (dropoffStatus === 'success' && map) {
+            marker = window.initMarker(map, {
+                lat: dropoffData?.latitude,
+                lng: dropoffData?.longitude
+            });
+        }
+
+        setFormState(prev => ({
+            ...prev,
+            dropoff: {
+                ...prev.dropoff,
+                ...(dropoffStatus === 'error' && { status: 'error' }),
+                ...(dropoffStatus === 'success' && { status: 'valid' }),
+                ...(marker && marker)
+            }
+        }));
+    }, [dropoffStatus, dropoffData, map]);
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFormState(prev => ({
@@ -76,6 +132,8 @@ export const App = () => {
                         placeholder='Drop off address'
                         icon={dropoffIconMap[formState.dropoff.status]}
                     />
+
+                    <Button handleClick={() => {}} label='Create job' />
                 </form>
             </div>
         </div>
