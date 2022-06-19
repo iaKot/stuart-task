@@ -63,8 +63,8 @@ export const App = () => {
 
         if (pickupStatus === 'success' && map) {
             marker = window.initMarker(map, {
-                lat: pickupData?.latitude,
-                lng: pickupData?.longitude
+                lat: pickupData.latitude,
+                lng: pickupData.longitude
             });
         }
 
@@ -84,8 +84,8 @@ export const App = () => {
 
         if (dropoffStatus === 'success' && map) {
             marker = window.initMarker(map, {
-                lat: dropoffData?.latitude,
-                lng: dropoffData?.longitude
+                lat: dropoffData.latitude,
+                lng: dropoffData.longitude
             });
         }
 
