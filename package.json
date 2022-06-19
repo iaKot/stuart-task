@@ -41,8 +41,10 @@
         ]
     },
     "devDependencies": {
+        "@testing-library/react-hooks": "^8.0.1",
         "@types/googlemaps": "^3.43.3",
         "prettier": "^2.7.1",
+        "react-test-renderer": "^18.2.0",
         "sass": "^1.52.3"
     }
 }
