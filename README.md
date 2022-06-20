@@ -15,7 +15,10 @@ Valid addresses:
 
 To run the app please do the following:
 
+Add the `.env` with `REACT_APP_GOOGLE_KEY` variable as in `.env.example`
+
 ```
+
 yarn install
 
 yarn start
