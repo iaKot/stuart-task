@@ -58,6 +58,9 @@ export const App = () => {
         debouncedDropoff,
         { enabled: !!debouncedDropoff }
     );
+    const formValid =
+        formState.pickup.status === 'valid' &&
+        formState.dropoff.status === 'valid';
 
     const onSuccess = () => {
         createNotification('Job has been created successfully!');
@@ -208,7 +211,7 @@ export const App = () => {
                         label={
                             createJob.isLoading ? 'Creating...' : 'Create job'
                         }
-                        disabled={createJob.isLoading}
+                        disabled={createJob.isLoading || !formValid}
                     />
                 </form>
                 <Notifications />
