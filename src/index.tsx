@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './app';
 import { initMap, InitMapFn, initMarker, InitMarkerFn } from './services/map';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { NotificationContextProvider } from './components/notification';
 import './index.css';
 
 declare global {
@@ -29,7 +30,9 @@ const root = ReactDOM.createRoot(
 root.render(
     <React.StrictMode>
         <QueryClientProvider client={queryClient}>
-            <App />{' '}
+            <NotificationContextProvider>
+                <App />
+            </NotificationContextProvider>
         </QueryClientProvider>
     </React.StrictMode>
 );

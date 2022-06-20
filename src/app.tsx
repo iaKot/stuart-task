@@ -8,10 +8,15 @@ import { PickUpBadgePresent } from './components/icons/pickup-badge-present';
 import { DropOffBadgeBlank } from './components/icons/dropoff-badge-blank';
 import { DropOffBadgeError } from './components/icons/dropoff-badge-error';
 import { DropOffBadgePresent } from './components/icons/dropoff-badge-present';
+import {
+    Notifications,
+    useNotificationContext
+} from './components/notification';
 import pickUpMarker from './svg/pickUpMarker.svg';
 import dropOffMarker from './svg/dropOffMarker.svg';
 import { useDebounce } from './hooks/use-debounce';
 import { useQueryAdderess } from './hooks/use-query-adderess';
+import { useCreateJob } from './hooks/use-create-job';
 import { FormState, FormKeys } from './types';
 import './styles.scss';
 
@@ -44,7 +49,7 @@ export const App = () => {
     const [formState, setFormState] = useState(formStateInit);
     const debouncedPickup = useDebounce(formState.pickup.value);
     const debouncedDropoff = useDebounce(formState.dropoff.value);
-
+    const { createNotification } = useNotificationContext();
     const { status: pickupStatus, data: pickupData } = useQueryAdderess(
         debouncedPickup,
         { enabled: !!debouncedPickup }
@@ -53,6 +58,21 @@ export const App = () => {
         debouncedDropoff,
         { enabled: !!debouncedDropoff }
     );
+
+    const onSuccess = () => {
+        createNotification('Job has been created successfully!');
+
+        if (formState.pickup.marker) {
+            formState.pickup.marker.setMap(null);
+        }
+
+        if (formState.dropoff.marker) {
+            formState.dropoff.marker.setMap(null);
+        }
+        setFormState(formStateInit);
+    };
+
+    const createJob = useCreateJob(onSuccess);
 
     useEffect(() => {
         const map = window.initMap(mapOptions);
@@ -154,6 +174,13 @@ export const App = () => {
         }));
     };
 
+    const onSubmit = () => {
+        createJob.mutate({
+            pickup: formState.pickup.value,
+            dropoff: formState.dropoff.value
+        });
+    };
+
     return (
         <div className='app'>
             <div id='map' className='map'></div>
@@ -176,8 +203,15 @@ export const App = () => {
                         icon={dropoffIconMap[formState.dropoff.status]}
                     />
 
-                    <Button handleClick={() => {}} label='Create job' />
+                    <Button
+                        handleClick={onSubmit}
+                        label={
+                            createJob.isLoading ? 'Creating...' : 'Create job'
+                        }
+                        disabled={createJob.isLoading}
+                    />
                 </form>
+                <Notifications />
             </div>
         </div>
     );
