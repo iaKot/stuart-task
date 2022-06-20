@@ -9,21 +9,13 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button: FC<Props> = props => {
-    const {
-        label,
-        handleClick,
-        testId,
-        children,
-        className,
-        disabled,
-        ...attr
-    } = props;
+    const { label, handleClick, testId, children, disabled, ...attr } = props;
 
     return (
         <button
             {...attr}
             data-testid='button'
-            className={`${className} button ${disabled && 'disabled'}`}
+            className={`button ${disabled ? 'disabled' : ''}`}
             onClick={handleClick}
             disabled={disabled}
         >
